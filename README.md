@@ -1,4 +1,46 @@
-# Getting Started with Create React App
+# Twine Method
+This is an open source example implementation of the Twine method for voice interaction between human and AI. The main problem this method aims to address is the lack of 2-way interruptions in traditional implementations of turn-based AI voice assistants. Normally, a turn based AI voice assistant system uses a mix of speech recognition, speech synthesis, and LLM text completion in distinct stages to engage in a dialog with the user. While the AI speaks, the user's speech is not being recognized. Once the AI is done speaking, the user's speech is recognized, then the text response is generated, and the AI responds. This is a problem because it is not how humans interact with each other. Humans interrupt each other all the time. In the absence of natural interruptions, both parties are unable to adequately model each other socially and spend a lot of time waiting for the other to finish speaking.
+
+The Twine method is a way to implement 2-way interruptions in a turn-based AI voice assistant system. The Twine method uses a single stream of speech recognition, speech synthesis, and LLM text completion. The AI and the user's speech are recognized simultaneously. We use diarization to separate the user's speech from the AI's speech. When the AI is speaking, its words are added to the dialog until the user interrupts. Once the user interrupts, the diarization will recognize a change of speaker, the AI will stop speaking, and the text completion will continue to run on the dialog until it is predicted that there is a change of speaker. If the change of speaker is predicted to be the AI, the AI will continue speaking. If the change of speaker is predicted to be the user, the AI will stop speaking and the user's speech will be added to the dialog. This process repeats until the user ends the conversation.
+
+## Todos:
+- [x] Speech recognition
+- [x] Speaker diarization
+- [x] Browser Speech synthesis
+- [x] LLM Text completion
+- [x] Automatically start speaking when change of speaker is predicted to be the AI
+- [x] Automatically stop speaking when user speaks over the AI
+- [x] Add AI completion to the dialog if it is actually spoken
+- [x] Add back interim transcripts to improve streaming capability, it looks like echo cancellation is already active for the browser speech recognition
+- [x] Add AI completion to the dialog as it is generated, so that the user's interruption includes what the AI said
+  - [ ] Right now I'm only adding AI completions to the dialog when they are done speaking. Because the user's speech is interrupting that, it ends up coming before the AI completion. Ideally I add the AI's speech as it is spoken.
+- [x] Additionally, the interruptions is not currently tracking what is being said at the time of the interruption. Both charIndex from the error event and the onBoundary event are not actually being fired properly. What gives??
+- [ ] Publish simple demo
+  - [ ] Functionality
+    - [ ] 2 way interruptions
+      - [ ] User interrupts AI
+        - [ ] AI is speaking for a while, user can speak over it
+        - [ ] the AI will stop speaking
+        - [ ] the AI text will show as truncated
+      - [ ] AI interrupts user
+        - [ ] User is speaking for a while, before the user is done prediction shows the user continues to speak
+        - [ ] when the user is about to finish, the prediction shows change of speaker
+        - [ ] the AI will start speaking
+        - [ ] the user text will show as truncated
+  - [ ] Aesthetics
+    - [ ] transcript shows speakers and indicates what is being spoken
+    - [ ] UI has a voice button so it's clear that it's an audio interface
+    - [ ] completion is shown with low opacity
+    - [ ] scroll to bottom of transcript as new text is added
+    - [ ] stretch: highlight words as they are spoken
+  - [ ] Render transcript + diarization in a clear, pleasing way
+
+Sources:
+* https://codersblock.com/blog/javascript-text-to-speech-and-its-many-quirks/
+* https://www.smashingmagazine.com/2017/02/experimenting-with-speechsynthesis/
+
+
+# ReactJS documentation
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
@@ -14,11 +56,6 @@ Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
 ### `npm run build`
 
 Builds the app for production to the `build` folder.\
@@ -29,42 +66,3 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
