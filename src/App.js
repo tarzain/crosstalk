@@ -11,7 +11,9 @@ openai.dangerouslyAllowBrowser = true;
 const humanSpeaker = 1;
 const aiSpeaker = 0;
 // unset this if you don't have echo cancellation
+// the browser seems to have built in echo cancellation
 const flipSpeaker = true;
+const startPhrase = "Hello, how can I help you?";
 
 function App() {
   const [interimTranscript, setInterimTranscript] = useState(null);
@@ -166,6 +168,9 @@ function App() {
       });
 
       //create a websocket connection
+      // diarization doesn't seem to work properly with interim results
+      // for best results, disable interim results
+      // for best UX, enable interim results which show up nicely in the UI and make it feel snappier
       const live = deepgram.listen.live({
         model: "nova-2-general", diarize: true,
         punctuate: true, smart_format: true,
@@ -177,7 +182,6 @@ function App() {
       live.on(LiveTranscriptionEvents.Open, () => {
         mediaRecorder.start(1000);
 
-        let startPhrase = "Hello, how can I help you?";
         setContinuation(textToTranscript(`Speaker${aiSpeaker}: ${startPhrase}`, true));
         speak(startPhrase);
 
