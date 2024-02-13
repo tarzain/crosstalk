@@ -5,6 +5,34 @@ This is an open source example implementation of the Crosstalk method for voice 
 
 The Crosstalk method is a simple way to implement 2-way interruptions in a turn-based AI voice assistant system. The method uses a single stream of speech recognition, speech synthesis, and LLM text completion. The AI and the user's speech are recognized simultaneously. We use diarization to separate the user's speech from the AI's speech. When the AI is speaking, its words are added to the dialog until the user interrupts. Once the user interrupts, the diarization will recognize a change of speaker, the AI will stop speaking, and the text completion will continue to run on the dialog until it is predicted that there is a change of speaker. If the change of speaker is predicted to be the AI, the AI will continue speaking. If the change of speaker is predicted to be the user, the AI will stop speaking and the user's speech will be added to the dialog. This process repeats until the user ends the conversation.
 
+# Setup
+1. Clone the repository
+2. Install the dependencies
+```bash
+npm install
+```
+3. Create a config.js file in the src directory with the following content:
+```javascript
+const config = {
+  "deepgram": {
+    "apiKey": "",
+    "apiUrl": "",
+  },
+  "openai": {
+    "apiKey": "",
+    "dangerouslyAllowBrowser": true,
+    "baseUrl": "http://localhost:1234/v1" // or "https://api.openai.com/v1"
+  }
+}
+
+export default config;
+```
+4. Start the development server
+```bash
+npm start
+```
+5. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
 ## Todos:
 - [x] Speech recognition
 - [x] Speaker diarization
