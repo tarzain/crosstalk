@@ -4,10 +4,6 @@ import { createClient, LiveTranscriptionEvents } from "@deepgram/sdk";
 import OpenAI from "openai";
 import { useState, useRef, useEffect } from "react";
 
-const deepgram = createClient(config.deepgram.apiKey);
-const openai = new OpenAI(config.openai);
-openai.dangerouslyAllowBrowser = true;
-
 const humanSpeaker = 1;
 const aiSpeaker = 0;
 // unset this if you don't have echo cancellation
@@ -26,6 +22,13 @@ function App() {
   const liveRef = useRef(null);
   const synth = useRef(window.speechSynthesis);
   const chatbox = useRef(null);
+
+
+  const [deepgramApiKey, setDeepgramApiKey] = useState(config && config.deepgram && config.deepgram.apiKey || '');
+  const [openaiApiKey, setOpenaiApiKey] = useState(config && config.openai && config.openai.apiKey || '');
+
+  const deepgram = useRef(null);
+  const openai = useRef(null);
 
   const populateVoiceList = () => {
     if ('speechSynthesis' in window) {
@@ -128,7 +131,7 @@ function App() {
   };
 
   const generateResponse = async (prompt) => {
-    const completion = await openai.completions.create({
+    const completion = await openai.current.completions.create({
       model: 'gpt-3.5-turbo-instruct',
       prompt: "Complete the dialog, sometimes the user isn't done speaking so please anticipate that. \n" + prompt,
       stop: [`\nSpeaker${humanSpeaker}:`, `\nSpeaker${humanSpeaker + 1}:`, `\nSpeaker:${humanSpeaker + 2}`, `Speaker:${humanSpeaker}`],
@@ -140,22 +143,6 @@ function App() {
     }
     return completion.choices[0].text;
   }
-
-  useEffect(() => {
-    if (transcript) {
-      generateResponse(renderTranscript(transcript)).then((response) => setContinuation(textToTranscript(response)));
-    }
-    if (chatbox.current) chatbox.current.scrollIntoView({ behavior: "smooth" });
-  }, [transcript]);
-
-  useEffect(() => {
-    // in Google Chrome the voices are not ready on page load
-    if ("onvoiceschanged" in synth.current) {
-      synth.current.onvoiceschanged = populateVoiceList;
-    } else {
-      populateVoiceList();
-    }
-  }, []);
 
   const activateMicrophone = () => {
     //Add microphone access
@@ -171,7 +158,7 @@ function App() {
       // diarization doesn't seem to work properly with interim results
       // for best results, disable interim results
       // for best UX, enable interim results which show up nicely in the UI and make it feel snappier
-      const live = deepgram.listen.live({
+      const live = deepgram.current.listen.live({
         model: "nova-2-general", diarize: true,
         punctuate: true, smart_format: true,
         filler_words: true,
@@ -320,6 +307,30 @@ function App() {
       );
     });
   }
+
+  const initialize = () => {
+    deepgram.current = createClient(deepgramApiKey);
+    openai.current = new OpenAI({ apiKey: openaiApiKey, dangerouslyAllowBrowser: true });
+  }
+
+
+  useEffect(() => {
+    if (transcript) {
+      generateResponse(renderTranscript(transcript)).then((response) => setContinuation(textToTranscript(response)));
+    }
+    if (chatbox.current) chatbox.current.scrollIntoView({ behavior: "smooth" });
+  }, [transcript]);
+
+  useEffect(() => {
+    // in Google Chrome the voices are not ready on page load
+    if ("onvoiceschanged" in synth.current) {
+      initialize();
+      synth.current.onvoiceschanged = populateVoiceList;
+    } else {
+      initialize();
+      populateVoiceList();
+    }
+  }, []);
 
   return (
     <div className="App">
