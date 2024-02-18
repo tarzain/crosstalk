@@ -335,29 +335,69 @@ function App() {
   return (
     <div className="App">
       <div className='md:container md:mx-auto'>
-        <h1 className="text-5xl font-bold py-4">crosstalk</h1>
+        <h1 className="text-5xl font-bold mb-4">
+          crosstalk
+        </h1>
+        <h2 className="text-1xl font-bold my-2">
+          a simple system for 2-way interruptible voice interactions between humans and LLMs
+          <br />
+          🗣️🤖
+        </h2>
         <div className='content pb-4'>
-          <div className='join'>
-            <button
-              type='button'
-              className='btn btn-neutral disabled:pointer-events-none join-item'>
-              voice
-            </button>
-            <select value={selectedVoice} onChange={handleVoiceChange} className='select select-bordered w-full max-w-xs join-item'>
-              {voices.map((voice, index) => (
-                <option key={index} value={voice.name}>
-                  {`${voice.name} (${voice.lang})`}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={activateMicrophone}
-              type='button'
-              className='btn btn-neutral join-item'>
-              start
-            </button>
-          </div>
+          <button className="btn btn-neutral disabled:pointer-events-none join-item mx-2" onClick={() => document.getElementById('my_modal_1').showModal()}>⚙️</button>
+          <button
+            onClick={activateMicrophone}
+            type='button'
+            className='btn btn-neutral join-item'>
+            start
+          </button>
         </div>
+        <dialog id="my_modal_1" className="modal">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Settings</h3>
+            <div className='join my-1'>
+              <button
+                type='button'
+                className='btn btn-neutral disabled:pointer-events-none join-item'>
+                voice
+              </button>
+              <select value={selectedVoice} onChange={handleVoiceChange} className='select select-bordered w-full max-w-xs join-item'>
+                {voices.map((voice, index) => (
+                  <option key={index} value={voice.name}>
+                    {`${voice.name} (${voice.lang})`}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className='join my-1'>
+              <button
+                type='button'
+                className='btn btn-neutral disabled:pointer-events-none join-item'>
+                Deepgram
+              </button>
+              <label className="input input-bordered flex items-center gap-2 join-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
+                <input type="password" className="grow" autocomplete="off" value={deepgramApiKey} onChange={(e) => setDeepgramApiKey(e.target.value)} />
+              </label>
+            </div>
+            <div className='join my-1'>
+              <button
+                type='button'
+                className='btn btn-neutral disabled:pointer-events-none join-item'>
+                OpenAI
+              </button>
+              <label className="input input-bordered flex items-center gap-2 join-item">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-4 h-4 opacity-70"><path fillRule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clipRule="evenodd" /></svg>
+                <input type="password" className="grow" autocomplete="off" value={openaiApiKey} onChange={(e) => setOpenaiApiKey(e.target.value)} />
+              </label>
+            </div>
+            <div className="modal-action">
+              <form method="dialog">
+                <button className="btn">Close</button>
+              </form>
+            </div>
+          </div>
+        </dialog>
         <div className='text-input'>
           {humanRenderTranscript(transcript)}
         </div>
